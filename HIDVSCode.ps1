@@ -1,57 +1,47 @@
-Register-EditorCommand -Name HelloID.AddVSCodePersonVariable -DisplayName "HelloID.AddVSCodePersonVariable" -ScriptBlock {
+# Register editorCommands
+Register-EditorCommand -Name HelloID.SetVSCodePerson -DisplayName "HelloID.SetVSCodePerson" -ScriptBlock {
     $PersonId = Read-Host 'Enter PersonId'
-
-$stringToAdd = @"
-    `$Global:person = Get-Stuntman -UserId $PersonId -ConvertToPerson | ConvertTo-Json -Depth 100
-"@
-
-    $stringToAdd | Out-File $helloIDConfigFile -Append
+    $content = Get-Content $helloIDConfigFile
+    [regex]$regex = "(['])(?:(?=(\\?))\2.)*?\1"
+    $newContent = $content -replace $regex, "'$PersonId'"
+    $newContent | Set-Content -Path $helloIDConfigFile
 }
 
-Register-EditorCommand -Name HelloID.AddVSCodeManagerVariable -DisplayName "HelloID.AddVSCodeManagerVariable" -ScriptBlock {
+Register-EditorCommand -Name HelloID.SetVSCodeManager -DisplayName "HelloID.SetVSCodeManager" -ScriptBlock {
     $ManagerId = Read-Host 'Enter ManagerId'
-
-$stringToAdd = @"
-    `$Global:manager = Get-Stuntman -UserId $ManagerId -ConvertToPerson | ConvertTo-Json -Depth 100
-"@
-
-    $stringToAdd | Out-File $helloIDConfigFile -Append
-}
-
-Register-EditorCommand -Name HelloID.AddVSCodeConnectorConfigurationVariable -DisplayName "HelloID.AddVSCodeConnectorConfigurationVariable" -ScriptBlock {
-    $connectorConfigFile = Read-Host 'Config File'
-
-$stringToAdd = @"
-    `$Global:configuration = Get-Content "$connectorConfigFile"
-"@
-
-    $stringToAdd | Out-File $helloIDConfigFile -Append
-}
-
-Register-EditorCommand -Name HelloID.RemoveCurrentVSCodeConfiguration -DisplayName "HelloID.RemoveCurrentVSCodeConfiguration" -ScriptBlock {
     $content = Get-Content $helloIDConfigFile
-    $null | Out-File $helloIDConfigFile
+    [regex]$regex = "(['])(?:(?=(\\?))\2.)*?\1"
+    $newContent = $content -replace $regex, "'$ManagerId'"
+    $newContent | Set-Content -Path $helloIDConfigFile
+}
 
-    $htmlContentView = New-VSCodeHtmlContentView -Title "HelloID.RemoveCurrentVSCodeConfiguration"
+Register-EditorCommand -Name HelloID.SetVSCodeConnectorConfiguration -DisplayName "HelloID.SetVSCodeConnectorConfiguration" -ScriptBlock {
+    $connectorConfigFile = Read-Host 'Path to config file'
+    $content = Get-Content $helloIDConfigFile
+    [regex]$regex = '[a-zA-Z]:\\(((?![<>:"/\\|?*]).)+((?<![ .])\\)?)*$'
+    $newContent = $content -replace $regex, $connectorConfigFile
+    $newContent | Set-Content -Path $helloIDConfigFile
+}
+
+Register-EditorCommand -Name HelloID.GetCurrentVSCodeSettings -DisplayName "HelloID.GetCurrentVSCodeSettings" -ScriptBlock {
+    $content = Get-Content $helloIDConfigFile
+    $html = $null
+    foreach ($line in $content){
+
+$htmlList = @"
+<li>$line</li>
+"@
+        $html += $htmlList
+    }
+
+    $htmlContentView = New-VSCodeHtmlContentView -Title "HelloID.GetCurrentVSCodeSettings"
     Set-VSCodeHtmlContentView -HtmlContentView $htmlContentView -HtmlBodyContent @"
-<h1>HelloID.RemoveCurrentVSCodeConfiguration</h1>
-<p>Removed content:</p>
-<pre>
-$content
-</pre>
-"@
-    Show-VSCodeHtmlContentView $htmlContentView
-}
-
-Register-EditorCommand -Name HelloID.GetCurrentVSCodeConfiguration -DisplayName "HelloID.GetCurrentVSCodeConfiguration" -ScriptBlock {
-    $content = Get-Content $helloIDConfigFile
-
-    $htmlContentView = New-VSCodeHtmlContentView -Title "HelloID.GetCurrentVSCodeConfiguration"
-Set-VSCodeHtmlContentView -HtmlContentView $htmlContentView -HtmlBodyContent @"
-<h1>HelloID.GetCurrentVSCodeConfiguration</h1>
+<h1>HelloID.GetCurrentVSCodeSettings</h1>
 <p>Current config:</p>
 <pre>
-$content
+<ol>
+$html
+</ol>
 </pre>
 "@
     Show-VSCodeHtmlContentView $htmlContentView
