@@ -1,26 +1,69 @@
 # Register-EditorCommand allows you to add commands to VScode that can be executed using the command palette. CRTL+Shift+P (CMD + Shift + P on Mac). 
-# 1. Make sure to change lines 2/3 according to your own environment.
+
+## Installation
+# 1. Make sure to change lines 8/9 according to your own environment.
 # 2. Execute the code to register a new editorCommand.
-# 3. Open a new document in VSCode using CRTL + n
-# 4. Enter the userName and immediately select the userName.
-# 5. Open the command palette using CRTL+Shift+P (CMD + Shift + P on Mac). 
-# 6. Select: <PowerShell: Show additional commands from PowerShell modules>.
-# 7. Select: <Add user from HelloID>.
 
-Register-EditorCommand -Name HelloID.User -DisplayName "Add user from HelloID" -ScriptBlock {
-    $helloIDUrl = "https://Customer-helloid.com"
-    $apiKeySecret = "YOUR_API_KEY:Your_API_Secret"
+```powershell
+$helloIDUrl = "https://Customer-helloid.com"
+$apiKeySecret = "YOUR_API_KEY:Your_API_Secret"
+$base64 = [System.Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes($apiKeySecret))
 
-    $context = $psEditor.GetEditorContext()
-    $userName = $context.CurrentFile.GetText()
-
-    $base64 = [System.Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes($apiKeySecret))
+Register-EditorCommand -Name HelloID.User -DisplayName "HelloIDGetUser" -ScriptBlock {
     $headers = New-Object "System.Collections.Generic.Dictionary[[String],[String]]"
     $headers.Add("Authorization", "Basic $base64")
-
+    
+    $context = $psEditor.GetEditorContext()
+    $userName = $context.CurrentFile.GetText()
     $result = Invoke-WebRequest "$helloIDUrl/api/v1/users/$userName" -Method 'GET' -Headers $headers
     $person = $result.Content
 
     $content = '$person = @"' +[environment]::NewLine + $person +[environment]::NewLine + '"@ | ConvertFrom-Json'
     $context.CurrentFile.InsertText($content, $context.SelectedRange)
 }
+
+Register-EditorCommand -Name HelloID.GetAllUsers -DisplayName "HelloID.GetAllUsers" -ScriptBlock {
+    $headers = New-Object "System.Collections.Generic.Dictionary[[String],[String]]"
+    $headers.Add("Authorization", "Basic $base64")
+
+    $result = Invoke-WebRequest "$helloIDUrl/api/v1/users" -Method 'GET' -Headers $headers
+
+    $htmlContentView = New-VSCodeHtmlContentView -Title "HelloID.GetAllUsers"
+    Set-VSCodeHtmlContentView -HtmlContentView $htmlContentView -HtmlBodyContent @"
+<h1>HelloID.GetAllUsers</h1>
+<p>Users from $helloIDUrl</p>
+<pre>
+<ol>
+$($result.Content)
+</ol>
+</pre>
+"@
+    Show-VSCodeHtmlContentView $htmlContentView
+}
+
+Register-EditorCommand -Name HelloID.GetAllAutomationVariables -DisplayName "HelloID.GetAllAutomationVariables" -ScriptBlock {
+    $headers = New-Object "System.Collections.Generic.Dictionary[[String],[String]]"
+    $headers.Add("Authorization", "Basic $base64")
+
+    $result = Invoke-WebRequest "$helloIDUrl/api/v1/automation/variables" -Method 'GET' -Headers $headers
+
+    $htmlContentView = New-VSCodeHtmlContentView -Title "HelloID.GetAllAutomationVariables"
+    Set-VSCodeHtmlContentView -HtmlContentView $htmlContentView -HtmlBodyContent @"
+<h1>HelloID.GetAllAutomationVariables</h1>
+<p>Variables from $helloIDUrl</p>
+<pre>
+<ol>
+$($result.Content)
+</ol>
+</pre>
+"@
+    Show-VSCodeHtmlContentView $htmlContentView
+}
+```
+
+## Usage
+# 1. Open a new document in VSCode using CRTL + n
+# 2. Enter the userName and immediately select the userName.
+# 3. Open the command palette using CRTL+Shift+P (CMD + Shift + P on Mac). 
+# 4. Select: <PowerShell: Show additional commands from PowerShell modules>.
+# 5. Have fun!
