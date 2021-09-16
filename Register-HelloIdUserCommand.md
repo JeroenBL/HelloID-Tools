@@ -1,8 +1,8 @@
-# Register-EditorCommand allows you to add commands to VScode that can be executed using the command palette. CRTL+Shift+P (CMD + Shift + P on Mac). 
+Register-EditorCommand allows you to add commands to VScode that can be executed using the command palette. CRTL+Shift+P (CMD + Shift + P on Mac). 
 
 ## Installation
-# 1. Make sure to change lines 8/9 according to your own environment.
-# 2. Execute the code to register a new editorCommand.
+1. Make sure to change lines 8/9 according to your own environment.
+2. Execute the code to register a new editorCommand.
 
 ```powershell
 $helloIDUrl = "https://Customer-helloid.com"
@@ -62,8 +62,8 @@ $($result.Content)
 ```
 
 ## Usage
-# 1. Open a new document in VSCode using CRTL + n
-# 2. Enter the userName and immediately select the userName.
-# 3. Open the command palette using CRTL+Shift+P (CMD + Shift + P on Mac). 
-# 4. Select: <PowerShell: Show additional commands from PowerShell modules>.
-# 5. Have fun!
+1. Open a new document in VSCode using CRTL + n
+2. Enter the userName and immediately select the userName.
+3. Open the command palette using CRTL+Shift+P (CMD + Shift + P on Mac). 
+4. Select: <PowerShell: Show additional commands from PowerShell modules>.
+5. Have fun!
