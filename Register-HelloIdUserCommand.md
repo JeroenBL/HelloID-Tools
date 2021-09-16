@@ -1,7 +1,14 @@
 Register-EditorCommand allows you to add commands to VScode that can be executed using the command palette. CRTL+Shift+P (CMD + Shift + P on Mac). 
 
-## Installation
-1. Make sure to change lines 8/9 according to your own environment.
+## Prerequisites
+
+- Make sure to have the PSModule: https://www.powershellgallery.com/packages/EditorServicesCommandSuite/1.0.0-beta4 installed.
+
+> If you use both Windows PowerShell and PowerShell Core, the module must be installed twice for both versions.
+
+## Configuration
+1. Copy and paste the code below to VSCode.
+1. Make sure to change the _$HelloIDUrl_ and _$apiKeySecret_ according to your own environment.
 2. Execute the code to register a new editorCommand.
 
 ```powershell
