@@ -1,6 +1,6 @@
 # HelloID-Tools
 
-A collection of HelloID PS tools that I use.
+A collection of HelloID tools for both PowerShell and VSCode
 
 ## Contents
 
